@@ -1,4 +1,5 @@
 class Parking < ApplicationRecord
+  belongs_to :user, :optional => true
   validates_presence_of :parking_type, :start_at
   validates_inclusion_of :parking_type, :in => ["guest", "short-term", "long-term"]
 
@@ -18,11 +19,12 @@ class Parking < ApplicationRecord
   end
 
   def calculate_amount
+    factor = (self.user.present?)? 50 : 100
     if self.amount.blank? && self.start_at.present? && self.end_at.present?
       if duration  <= 60
         self.amount = 200
       else
-        self.amount = 200 + ( (duration-60).to_f / 30 ).ceil * 100
+        self.amount = 200 + ( (duration-60).to_f / 30 ).ceil * factor
       end
     end
   end
